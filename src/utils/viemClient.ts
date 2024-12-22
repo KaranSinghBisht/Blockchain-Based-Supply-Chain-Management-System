@@ -6,7 +6,7 @@ import { isAddress } from "viem";
 // Contract Address
 const CONTRACT_ADDRESS =
   process.env.NEXT_PUBLIC_CHAIN === "sepolia"
-    ? "0x61768F91d97ebcf03546bf4Dcd5657d37D2fD7b3" // Sepolia address
+    ? "0xc38f0cD0880c2986b0B67c16f1A7B9434225487a" // Sepolia address
     : "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"; // Anvil address
 
 const ABI = SupplyChainABI.abi as Abi;
@@ -85,13 +85,14 @@ export const supplyChainContract = {
       args: [id],
     })) as `0x${string}`[];
   },
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getAllProducts(): Promise<any[]> {
     return (await publicClient.readContract({
       address: CONTRACT_ADDRESS,
       abi: ABI,
       functionName: "getAllProducts",
       args: [],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     })) as any[];
   },
 };

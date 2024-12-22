@@ -48,6 +48,7 @@ const TransferForm = () => {
         // Otherwise, it's a successful transaction hash
         setStatus(`Ownership transferred successfully! TxHash: ${result}`);
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error transferring ownership:", error);
       setStatus(`Error: ${error.message || "Failed to transfer ownership"}`);

@@ -6,6 +6,7 @@ const RegisterForm = () => {
   const [name, setName] = useState<string>("");
   const [batch, setBatch] = useState<number | undefined>();
   const [status, setStatus] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [products, setProducts] = useState<any[]>([]);
 
   // Fetch Products from the Contract
@@ -41,6 +42,7 @@ const RegisterForm = () => {
 
       setStatus("Product registered successfully!");
       fetchProducts(); // Refresh product list
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error registering product:", error);
       setStatus(`Error: ${error.message || "Registration failed"}`);
