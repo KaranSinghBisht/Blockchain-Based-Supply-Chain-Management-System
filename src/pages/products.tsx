@@ -1,27 +1,90 @@
-// pages/products.tsx
-import Navbar from '../components/Navbar';
+import Navbar from "../components/Navbar";
 import { useEffect, useState } from "react";
-import { supplyChainContract } from "@/utils/viemClient";
+import { supplyChainContract , walletClient } from "@/utils/viemClient";
+import QRCodeModal from "@/components/QRCodeModal";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // State to manage the modal
+  const [modal, setModal] = useState<{ productId: number | null; action: string | null }>({
+    productId: null,
+    action: null,
+  });
+  const [qrModal, setQrModal] = useState<{ productId: number | null }>({
+    productId: null,
+  });
+  const [history, setHistory] = useState<string[]>([]);
+  const [transferAddress, setTransferAddress] = useState<string>("");
+  const [status, setStatus] = useState<string>("");
+
   const fetchAllProducts = async () => {
     setLoading(true);
     try {
       const data = await supplyChainContract.getAllProducts();
+      console.log("Fetched Products:", data);
       setProducts(data);
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
       setLoading(false);
-    }
+    } 
   };
 
   useEffect(() => {
     fetchAllProducts();
   }, []);
+
+  const fetchOwnershipHistory = async (productId: number) => {
+    try {
+      const ownershipHistory = await supplyChainContract.getOwnershipHistory(productId);
+      setHistory(ownershipHistory);
+    } catch (error) {
+      console.error("Error fetching ownership history:", error);
+      setHistory([]);
+    }
+  };
+
+  const handleTransferOwnership = async (productId: number) => {
+    try {
+      setStatus(""); // Clear previous status
+      if (!transferAddress) {
+        setStatus("Please enter a valid address.");
+        return;
+      }
+  
+      // Fetch the connected wallet address
+      const addresses = await walletClient?.requestAddresses();
+      if (!addresses || addresses.length === 0) {
+        setStatus("No wallet connected.");
+        return;
+      }
+  
+      const currentAccount = addresses[0].toLowerCase(); // Convert to lowercase for comparison
+  
+      // Check if the user is the current owner of the product
+      const product = products.find((p) => p.id === productId);
+      if (!product) {
+        setStatus("Product not found.");
+        return;
+      }
+  
+      if (product.currentOwner.toLowerCase() !== currentAccount) {
+        setStatus("You are not the owner of this product.");
+        return;
+      }
+  
+      // Proceed with the transfer
+      setStatus("Processing transfer, please wait...");
+      const result = await supplyChainContract.transferOwnership(productId, transferAddress);
+      setStatus(`Ownership transferred successfully! TxHash: ${result}`);
+    } catch (error: any) {
+      console.error("Error transferring ownership:", error);
+      setStatus(`Error: ${error.message || "Failed to transfer ownership"}`);
+    }
+  };
+  
 
   return (
     <div>
@@ -52,25 +115,139 @@ export default function ProductsPage() {
                   {new Date(Number(product.manufacturedDate) * 1000).toLocaleString()}
                 </p>
                 <p className="text-gray-600 mb-1">Owner: {product.currentOwner}</p>
+                <p className="text-gray-600 mb-1">Distributor: {product.distributor || "Unknown"}</p>
+                <p className="text-gray-600 mb-1">Consumer: {product.consumer || "Unknown"}</p>
               </div>
-              <div className="mt-4">
-                {product.ipfsHash ? (
-                  <a
-                    href={`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}${product.ipfsHash}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:text-blue-600 underline"
-                  >
-                    View Metadata
-                  </a>
-                ) : (
-                  <span className="text-gray-500">No Metadata</span>
-                )}
-              </div>
+              <button
+                onClick={() => setModal({ productId: product.id, action: null })}
+                className="bg-blue-500 text-white px-4 py-2 mt-4 rounded hover:bg-blue-600"
+              >
+                Actions
+              </button>
+              
             </div>
           ))}
         </div>
       </div>
+
+      {/* Main Modal */}
+        {modal.productId && modal.action === null && (
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+              <h2 className="text-xl font-bold mb-4 text-center">
+                Actions for Product #{modal.productId}
+              </h2>
+              <div className="flex flex-col gap-4">
+                <button
+                  onClick={() =>
+                    window.open(
+                      `${process.env.NEXT_PUBLIC_IPFS_GATEWAY}${products.find((p) => p.id === modal.productId)?.ipfsHash}`,
+                      "_blank"
+                    )
+                  }
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
+                >
+                  View Metadata
+                </button>
+                <button
+                  onClick={() => {
+                    fetchOwnershipHistory(modal.productId!);
+                    setModal({ productId: modal.productId, action: "history" });
+                  }}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
+                >
+                  Check Ownership History
+                </button>
+                <button
+                  onClick={() => setModal({ productId: modal.productId, action: "transfer" })}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
+                >
+                  Transfer Ownership
+                </button>
+                <button
+                onClick={() => setQrModal({ productId: modal.productId })}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              >
+                Generate QR Code
+              </button>
+                <button
+                  onClick={() => setModal({ productId: null, action: null })}
+                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-200"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Ownership History Modal */}
+        {modal.productId && modal.action === "history" && (
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md overflow-y-auto">
+              <h2 className="text-xl font-bold mb-4 text-center">
+                Ownership History for Product #{modal.productId}
+              </h2>
+              <ul className="list-disc pl-6 text-gray-800 space-y-2 max-h-64 overflow-y-auto">
+                {history.length > 0 ? (
+                  history.map((owner, index) => (
+                    <li key={index} className="break-words text-sm">
+                      {owner}
+                    </li>
+                  ))
+                ) : (
+                  <p className="text-gray-600">No history found.</p>
+                )}
+              </ul>
+              <button
+                onClick={() => setModal({ productId: modal.productId, action: null })}
+                className="bg-blue-500 text-white px-4 py-2 mt-4 rounded hover:bg-blue-600 transition duration-200"
+              >
+                Back
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Transfer Ownership Modal */}
+        {modal.productId && modal.action === "transfer" && (
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+              <h2 className="text-xl font-bold mb-4 text-center">
+                Transfer Ownership for Product #{modal.productId}
+              </h2>
+              <input
+                type="text"
+                placeholder="New Owner Address"
+                value={transferAddress}
+                onChange={(e) => setTransferAddress(e.target.value)}
+                className="border border-gray-300 p-2 w-full rounded mb-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={() => handleTransferOwnership(modal.productId!)}
+                className="bg-green-500 text-white px-4 py-2 rounded w-full hover:bg-green-600 transition duration-200"
+              >
+                Transfer Ownership
+              </button>
+              
+          
+              <button
+                onClick={() => setModal({ productId: modal.productId, action: null })}
+                className="bg-blue-500 text-white px-4 py-2 mt-4 rounded w-full hover:bg-blue-600 transition duration-200"
+              >
+                Back
+              </button>
+            </div>
+          </div>
+        )}
+         {/* QR Code Modal */}
+      {qrModal.productId && (
+        <QRCodeModal
+          productId={qrModal.productId}
+          productData={products.find((p) => p.id === qrModal.productId)}
+          onClose={() => setQrModal({ productId: null })}
+        />
+      )}
     </div>
   );
 }

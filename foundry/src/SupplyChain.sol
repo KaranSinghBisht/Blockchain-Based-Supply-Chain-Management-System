@@ -271,7 +271,9 @@ contract SupplyChain {
       uint256[] memory finalDeadlines,
       bool[] memory isPaymentReleasedFlags,
       address[][] memory ownershipHistories,
-      string[] memory ipfsHashes
+      string[] memory ipfsHashes,
+      address[] memory distributors, // Added distributor
+      address[] memory consumers // Added consumer
     )
   {
     uint256 total = productIds.length;
@@ -288,6 +290,8 @@ contract SupplyChain {
     isPaymentReleasedFlags = new bool[](total);
     ownershipHistories = new address[][](total);
     ipfsHashes = new string[](total);
+    distributors = new address[](total);
+    consumers = new address[](total);
 
     for (uint256 i = 0; i < total; i++) {
       uint256 productId = productIds[i];
@@ -305,6 +309,8 @@ contract SupplyChain {
       isPaymentReleasedFlags[i] = product.isPaymentReleased;
       ownershipHistories[i] = product.ownershipHistory;
       ipfsHashes[i] = product.ipfsHash;
+      distributors[i] = product.distributor;
+      consumers[i] = product.consumer;
     }
   }
 }

@@ -181,6 +181,8 @@ export const supplyChainContract = {
         isPaymentReleasedFlags,
         ownershipHistories,
         ipfsHashes,
+        distributors,
+        consumers,
       ] = result as [
         number[],
         string[],
@@ -193,6 +195,8 @@ export const supplyChainContract = {
         number[],
         boolean[],
         string[][],
+        string[],
+        string[],
         string[]
       ];
 
@@ -209,6 +213,8 @@ export const supplyChainContract = {
         isPaymentReleased: isPaymentReleasedFlags[index] || false,
         ownershipHistory: ownershipHistories[index] || [],
         ipfsHash: ipfsHashes[index] || "",
+        distributor: distributors[index] || "Unknown",
+        consumer: consumers[index] || "Unknown",
       }));
     } catch (error: any) {
       console.error("Error fetching products:", error.message || error);

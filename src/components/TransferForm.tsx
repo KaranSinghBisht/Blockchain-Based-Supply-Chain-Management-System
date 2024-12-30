@@ -7,53 +7,52 @@ const TransferForm = () => {
   const [status, setStatus] = useState<string>("");
 
   const handleTransfer = async () => {
-    setStatus(""); // Reset status
-  
-    try {
-      if (!productId || isNaN(productId) || !newOwner) {
-        setStatus("Please enter a valid Product ID and new owner address.");
-        return;
-      }
-  
-      // Fetch connected account
-      const addresses = await walletClient?.requestAddresses();
-      if (!addresses || addresses.length === 0) {
-        setStatus("No wallet connected.");
-        return;
-      }
-  
-      const currentAccount = addresses[0].toLowerCase(); // Convert to lowercase for comparison
-  
-      // Fetch product details
-      const products = await supplyChainContract.getAllProducts();
-      const product = products.find((p) => Number(p.id) === productId);
-  
-      if (!product) {
-        setStatus("Product not found.");
-        return;
-      }
-  
-      if (product.currentOwner.toLowerCase() !== currentAccount) {
-        setStatus("You are not the owner of this product.");
-        return;
-      }
-  
-      setStatus("Processing transfer, please wait...");
-      const result = await supplyChainContract.transferOwnership(productId, newOwner);
-  
-      if (typeof result === "string") {
-        // If the result is a string, it indicates an error message
-        setStatus(result);
-      } else {
-        // Otherwise, it's a successful transaction hash
-        setStatus(`Ownership transferred successfully! TxHash: ${result}`);
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error("Error transferring ownership:", error);
-      setStatus(`Error: ${error.message || "Failed to transfer ownership"}`);
+  setStatus(""); // Reset status
+
+  try {
+    if (!productId || isNaN(productId) || !newOwner) {
+      setStatus("Please enter a valid Product ID and new owner address.");
+      return;
     }
-  };
+
+    // Fetch connected account
+    const addresses = await walletClient?.requestAddresses();
+    if (!addresses || addresses.length === 0) {
+      setStatus("No wallet connected.");
+      return;
+    }
+
+    const currentAccount = addresses[0].toLowerCase(); // Convert to lowercase for comparison
+
+    // Fetch product details
+    const products = await supplyChainContract.getAllProducts();
+    const product = products.find((p) => Number(p.id) === productId);
+
+    if (!product) {
+      setStatus("Product not found.");
+      return;
+    }
+
+    if (product.currentOwner.toLowerCase() !== currentAccount) {
+      setStatus("You are not the owner of this product.");
+      return;
+    }
+
+    setStatus("Processing transfer, please wait...");
+    const result = await supplyChainContract.transferOwnership(productId, newOwner);
+
+    if (typeof result === "string") {
+      // If the result is a string, it indicates an error message
+      setStatus(result);
+    } else {
+      // Otherwise, it's a successful transaction hash
+      setStatus(`Ownership transferred successfully! TxHash: ${result}`);
+    }
+  } catch (error: any) {
+    console.error("Error transferring ownership:", error);
+    setStatus(`Error: ${error.message || "Failed to transfer ownership"}`);
+  }
+};
   
 
   return (
