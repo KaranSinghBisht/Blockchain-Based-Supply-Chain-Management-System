@@ -16,7 +16,7 @@ const QRCodeModal: React.FC<QRCodeModalProps> = ({ productId, productData, onClo
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+      <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-xl font-bold mb-4 text-center">
           QR Code for Product #{productId}
         </h2>

@@ -89,7 +89,7 @@ export default function ProductsPage() {
   return (
     <div>
       <Navbar />
-      <div className="p-6 bg-gray-100 min-h-screen">
+      <div className="p-6 bg-black min-h-screen">
         <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Products</h1>
 
         {loading && (
@@ -104,23 +104,23 @@ export default function ProductsPage() {
           {products.map((product) => (
             <div
               key={product.id}
-              className="border border-gray-200 bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+              className="border border-gray-200 bg-gray-800 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
             >
               <div>
                 <h2 className="text-xl font-semibold mb-2 text-gray-800">Name: {product.name}</h2>
-                <p className="text-gray-600 mb-1">ID: {product.id}</p>
-                <p className="text-gray-600 mb-1">Batch: {product.batch}</p>
-                <p className="text-gray-600 mb-1">
+                <p className="text-gray-100 mb-1">ID: {product.id}</p>
+                <p className="text-gray-100 mb-1">Batch: {product.batch}</p>
+                <p className="text-gray-100 mb-1">
                   Manufactured:{" "}
                   {new Date(Number(product.manufacturedDate) * 1000).toLocaleString()}
                 </p>
-                <p className="text-gray-600 mb-1">Owner: {product.currentOwner}</p>
-                <p className="text-gray-600 mb-1">Distributor: {product.distributor || "Unknown"}</p>
-                <p className="text-gray-600 mb-1">Consumer: {product.consumer || "Unknown"}</p>
+                <p className="text-gray-100 mb-1">Owner: {product.currentOwner}</p>
+                <p className="text-gray-100 mb-1">Distributor: {product.distributor || "Unknown"}</p>
+                <p className="text-gray-100 mb-1">Consumer: {product.consumer || "Unknown"}</p>
               </div>
               <button
                 onClick={() => setModal({ productId: product.id, action: null })}
-                className="bg-blue-500 text-white px-4 py-2 mt-4 rounded hover:bg-blue-600"
+                className="bg-gradient-to-r from-fuchsia-600 to-cyan-400 text-white px-6 py-3 rounded-lg hover:from-fuchsia-500 hover:to-cyan-300 transition font-medium mt-6"
               >
                 Actions
               </button>
@@ -133,7 +133,7 @@ export default function ProductsPage() {
       {/* Main Modal */}
         {modal.productId && modal.action === null && (
           <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
               <h2 className="text-xl font-bold mb-4 text-center">
                 Actions for Product #{modal.productId}
               </h2>
@@ -145,7 +145,7 @@ export default function ProductsPage() {
                       "_blank"
                     )
                   }
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
+                  className="bg-gradient-to-r from-fuchsia-600 to-cyan-400 text-white px-6 py-3 rounded-lg font-medium"
                 >
                   View Metadata
                 </button>
@@ -154,19 +154,19 @@ export default function ProductsPage() {
                     fetchOwnershipHistory(modal.productId!);
                     setModal({ productId: modal.productId, action: "history" });
                   }}
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
+                  className="bg-gradient-to-r from-fuchsia-600 to-cyan-400 text-white px-6 py-3 rounded-lg font-medium"
                 >
                   Check Ownership History
                 </button>
                 <button
                   onClick={() => setModal({ productId: modal.productId, action: "transfer" })}
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
+                  className="bg-gradient-to-r from-fuchsia-600 to-cyan-400 text-white px-6 py-3 rounded-lg font-medium"
                 >
                   Transfer Ownership
                 </button>
                 <button
                 onClick={() => setQrModal({ productId: modal.productId })}
-                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                className="bg-gradient-to-r from-fuchsia-600 to-cyan-400 text-white px-6 py-3 rounded-lg font-medium"
               >
                 Generate QR Code
               </button>
@@ -184,11 +184,11 @@ export default function ProductsPage() {
         {/* Ownership History Modal */}
         {modal.productId && modal.action === "history" && (
           <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md overflow-y-auto">
+            <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md overflow-y-auto">
               <h2 className="text-xl font-bold mb-4 text-center">
                 Ownership History for Product #{modal.productId}
               </h2>
-              <ul className="list-disc pl-6 text-gray-800 space-y-2 max-h-64 overflow-y-auto">
+              <ul className="list-disc pl-6 text-gray-100 space-y-2 max-h-64 overflow-y-auto">
                 {history.length > 0 ? (
                   history.map((owner, index) => (
                     <li key={index} className="break-words text-sm">
@@ -196,7 +196,7 @@ export default function ProductsPage() {
                     </li>
                   ))
                 ) : (
-                  <p className="text-gray-600">No history found.</p>
+                  <p className="text-gray-100">No history found.</p>
                 )}
               </ul>
               <button
@@ -212,7 +212,7 @@ export default function ProductsPage() {
         {/* Transfer Ownership Modal */}
         {modal.productId && modal.action === "transfer" && (
           <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
               <h2 className="text-xl font-bold mb-4 text-center">
                 Transfer Ownership for Product #{modal.productId}
               </h2>
@@ -225,7 +225,7 @@ export default function ProductsPage() {
               />
               <button
                 onClick={() => handleTransferOwnership(modal.productId!)}
-                className="bg-green-500 text-white px-4 py-2 rounded w-full hover:bg-green-600 transition duration-200"
+                className="bg-gradient-to-r from-fuchsia-600 to-cyan-400 text-white px-6 py-3 rounded-lg font-medium w-full"
               >
                 Transfer Ownership
               </button>
