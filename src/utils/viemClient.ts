@@ -5,6 +5,7 @@ import {
   http,
   Abi,
   isAddress,
+  parseUnits,
 } from "viem";
 import { anvilChain, sepoliaChain } from "./chain";
 import SupplyChainABI from "../../foundry/out/SupplyChain.sol/SupplyChain.json";
@@ -75,54 +76,37 @@ export const supplyChainContract = {
     batch: number;
     distributor: string;
     consumer: string;
-    paymentAmount: number;
-    bonusAmount: number;
+    paymentAmount: string;
+    bonusAmount: string;
     bonusDeadline: number;
     finalDeadline: number;
     ipfsHash: string;
   }): Promise<`0x${string}`> {
     const client = await ensureWalletClient();
     const [account] = await client.requestAddresses();
-
-    // Use BigInt for value in Wei
-    const totalStake = BigInt(
-      (Number(product.paymentAmount) + Number(product.bonusAmount)) * 10 ** 18
-    );
-
+    const paymentAmountWei = parseUnits(product.paymentAmount, 18);
+    const bonusAmountWei = parseUnits(product.bonusAmount, 18);
+    const totalStake = paymentAmountWei + bonusAmountWei;
+    const productInput = {
+      id: product.id,
+      name: product.name,
+      batch: product.batch,
+      distributor: product.distributor,
+      consumer: product.consumer,
+      paymentAmount: paymentAmountWei, // pass wei to contract
+      bonusAmount: bonusAmountWei, // pass wei to contract
+      bonusDeadline: product.bonusDeadline,
+      finalDeadline: product.finalDeadline,
+      ipfsHash: product.ipfsHash,
+    };
     return client.writeContract({
       address: CONTRACT_ADDRESS,
       abi: ABI,
       functionName: "registerProduct",
-      args: [product],
+      args: [productInput],
       account,
       value: totalStake,
       gas: BigInt(3000000), // Add explicit gas limit
-    });
-  },
-
-  async confirmOwnership(id: number): Promise<`0x${string}`> {
-    const client = await ensureWalletClient();
-    const [account] = await client.requestAddresses();
-
-    return client.writeContract({
-      address: CONTRACT_ADDRESS,
-      abi: ABI,
-      functionName: "confirmOwnership",
-      args: [id],
-      account,
-    });
-  },
-
-  async rejectOwnership(id: number): Promise<`0x${string}`> {
-    const client = await ensureWalletClient();
-    const [account] = await client.requestAddresses();
-
-    return client.writeContract({
-      address: CONTRACT_ADDRESS,
-      abi: ABI,
-      functionName: "rejectOwnership",
-      args: [id],
-      account,
     });
   },
 

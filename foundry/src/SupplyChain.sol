@@ -58,8 +58,7 @@ contract SupplyChain {
 
   event OwnershipTransferred(uint256 indexed id, address indexed previousOwner, address indexed newOwner);
 
-  event OwnershipConfirmed(uint256 indexed id, address indexed consumer);
-  event OwnershipRejected(uint256 indexed id, address indexed rejectedBy);
+  // Removed OwnershipConfirmed and OwnershipRejected events
 
   event BonusReleased(uint256 indexed id, uint256 totalPayment);
   event LatePenaltyApplied(uint256 indexed id, uint256 penaltyAmount);
@@ -128,7 +127,7 @@ contract SupplyChain {
 
     address previousOwner = product.currentOwner;
 
-    // If the new owner is the consumer, we handle the payment + bonus/punishment logic
+    // If the new owner is the consumer, handle the payment logic
     if (newOwner == product.consumer && !product.isPaymentReleased) {
       _handlePayments(product);
       product.isPaymentReleased = true; // Mark payment as released
@@ -176,42 +175,6 @@ contract SupplyChain {
       emit PaymentReleased(product.id, reducedPayment);
       emit PenaltyApplied(product.id, (payment - reducedPayment));
     }
-  }
-
-  /// ------------------------
-  ///   CONFIRM / REJECT
-  /// ------------------------
-  function confirmOwnership(uint256 id) external {
-    Product storage product = products[id];
-    require(product.id != 0, "Product does not exist");
-    require(msg.sender == product.currentOwner, "Only current owner can confirm");
-    require(msg.sender == product.consumer, "Only the consumer can confirm");
-
-    // Mark payment as released if not already
-    if (!product.isPaymentReleased) {
-      _handlePayments(product);
-      product.isPaymentReleased = true;
-    }
-
-    emit OwnershipConfirmed(id, msg.sender);
-  }
-
-  function rejectOwnership(uint256 id) external {
-    Product storage product = products[id];
-    require(product.id != 0, "Product does not exist");
-    require(msg.sender == product.currentOwner, "Only the current owner can reject");
-    require(!product.isPaymentReleased, "Payment already released");
-
-    // Pop the consumer out of the ownership history
-    product.ownershipHistory.pop();
-
-    // Revert currentOwner back to the previous owner
-    // (previous owner is product.ownershipHistory[product.ownershipHistory.length - 1])
-    // But we should only pop if we truly are rejecting the "new" consumer
-    address newOwner = product.ownershipHistory[product.ownershipHistory.length - 1];
-    product.currentOwner = newOwner;
-
-    emit OwnershipRejected(id, msg.sender);
   }
 
   /// ------------------------
