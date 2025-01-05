@@ -229,9 +229,6 @@ const RegisterForm = () => {
   
     {/* Registered Products */}
     <h3 className="text-3xl font-bold mt-10 mb-4 text-gradient bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-      Registered Products
-    </h3>
-    <h3 className="text-3xl font-bold mt-10 mb-4 text-gradient bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
   Registered Products
 </h3>
     <div className="overflow-x-auto">
