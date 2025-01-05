@@ -57,11 +57,11 @@ const Index = () => {
           </p>
 
           <div className="flex gap-4 justify-center">
-            <button className="px-8 py-3 rounded-full bg-gradient-to-r from-fuchsia-600 to-blue-500 hover:from-fuchsia-500 hover:to-blue-400 transition-all font-medium">
+            <button 
+              onClick={() => document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-12 py-3 rounded-full bg-gradient-to-r from-fuchsia-600 to-blue-500 hover:from-fuchsia-500 hover:to-blue-400 transition-all font-medium text-white"
+            >
               Learn How It Works
-            </button>
-            <button className="px-8 py-3 rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-400 hover:to-cyan-300 transition-all font-medium">
-              Connect Wallet
             </button>
           </div>
         </div>
@@ -90,7 +90,7 @@ const Index = () => {
           </p>
           <div className="relative">
             {/* Vertical Line */}
-            <div className="absolute left-8 top-0 bottom-0 w-1 bg-gradient-to-b from-fuchsia-500 to-blue-500"></div>
+            <div id="how-it-works" className="absolute left-8 top-0 bottom-0 w-1 bg-gradient-to-b from-fuchsia-500 to-blue-500"></div>
             <div className="space-y-12 pl-16">
               {steps.map((step, index) => (
                 <div key={index} className="relative flex items-start gap-6">
