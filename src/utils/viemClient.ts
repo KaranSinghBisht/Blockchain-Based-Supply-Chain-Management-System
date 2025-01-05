@@ -13,7 +13,7 @@ import SupplyChainABI from "../../foundry/out/SupplyChain.sol/SupplyChain.json";
 // Whichever address you have actually deployed for Anvil & Sepolia
 const CONTRACT_ADDRESS =
   process.env.NEXT_PUBLIC_CHAIN === "sepolia"
-    ? "0xc38f0cD0880c2986b0B67c16f1A7B9434225487a" // Your Sepolia address
+    ? "0x0899cbA7e3ce5558973A9791cdD31f2A1c0a1bA4" // Your Sepolia address
     : "0x8464135c8F25Da09e49BC8782676a84730C318bC"; // Your Anvil address
 
 const ABI = SupplyChainABI.abi as Abi;
