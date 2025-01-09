@@ -40,7 +40,7 @@ contract SupplyChain {
   ///         STORAGE
   /// ------------------------
   mapping(uint256 => Product) public products;
-  uint256[] public productIds; // Tracks the IDs of all registered products
+  uint256[] public productIds;
 
   /// ------------------------
   ///         EVENTS
@@ -57,9 +57,6 @@ contract SupplyChain {
   );
 
   event OwnershipTransferred(uint256 indexed id, address indexed previousOwner, address indexed newOwner);
-
-  // Removed OwnershipConfirmed and OwnershipRejected events
-
   event BonusReleased(uint256 indexed id, uint256 totalPayment);
   event LatePenaltyApplied(uint256 indexed id, uint256 penaltyAmount);
   event PaymentReleased(uint256 indexed id, uint256 paymentAmount);
@@ -178,39 +175,6 @@ contract SupplyChain {
   }
 
   /// ------------------------
-  ///   INCENTIVE FUNCTIONS
-  /// ------------------------
-  function releaseBonus(uint256 id) external {
-    Product storage product = products[id];
-    require(product.id != 0, "Product does not exist");
-    require(block.timestamp <= product.bonusDeadline, "Bonus deadline passed");
-    require(!product.isPaymentReleased, "Payment already released");
-
-    address distributor = product.distributor;
-    uint256 totalPayment = product.paymentAmount + product.bonusAmount;
-
-    payable(distributor).transfer(totalPayment);
-    product.isPaymentReleased = true;
-
-    emit BonusReleased(id, totalPayment);
-  }
-
-  function applyLatePenalty(uint256 id) external {
-    Product storage product = products[id];
-    require(product.id != 0, "Product does not exist");
-    require(block.timestamp > product.finalDeadline, "Deadline not passed");
-    require(!product.isPaymentReleased, "Payment already released");
-
-    address distributor = product.distributor;
-    uint256 reducedPayment = (product.paymentAmount * 75) / 100;
-
-    payable(distributor).transfer(reducedPayment);
-    product.isPaymentReleased = true;
-
-    emit LatePenaltyApplied(id, reducedPayment);
-  }
-
-  /// ------------------------
   ///       READ-ONLY
   /// ------------------------
   function getOwnershipHistory(uint256 id) external view returns (address[] memory) {
@@ -235,8 +199,8 @@ contract SupplyChain {
       bool[] memory isPaymentReleasedFlags,
       address[][] memory ownershipHistories,
       string[] memory ipfsHashes,
-      address[] memory distributors, // Added distributor
-      address[] memory consumers // Added consumer
+      address[] memory distributors,
+      address[] memory consumers
     )
   {
     uint256 total = productIds.length;
