@@ -39,7 +39,7 @@ Create a .env file in the root directory with the following content:
 
 ```env
 NEXT_PUBLIC_CHAIN=sepolia # set to 'anvil' for local testing, set to 'sepolia' for the deployed contract
-NEXT_PUBLIC_ALCHEMY_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/i0gC7tUdEyZSjJrT99hkFdNuO24RQ2za
+NEXT_PUBLIC_ALCHEMY_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_ALCHEMY_API_KEY
 ```
 
 ### Start the Application
